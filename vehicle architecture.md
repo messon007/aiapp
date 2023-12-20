@@ -18,9 +18,9 @@ Signal is used to communicate between software components which may be deployed 
 The communication matrix define all signals between physical ECUs.
 The signals used to communicate between different software components is waiting to be designed.
 The signal flow in BCM will follow the layered architecture common rules: 
-* All incoming signals will arrive ASW software component through BSW software component and then ADP software component.
-* All outgoing signals will be sent out by BSW software component through ASW software component and then ADP software component.
-The software components defined in HU and RoofLight is not cared and the signal flow in HU and RoofLight is also not cared.
+* All incoming signals from outer ECU must arrive ASW software component through BSW software component, ADP software component in order.
+* All outgoing signals must be sent out to outer ECU by BSW software component through ASW software component, ADP software component in order.
+This document only define the software components defined in BCM ECU and software components defined in other ECU is not described and can be neglected.
 
 #### Communication Matrix Information
 1. There are three signals defined between HU and BCM:
@@ -32,17 +32,20 @@ The software components defined in HU and RoofLight is not cared and the signal 
      
 #### Software Components defined in BCM's BSW layer
 1. 'IOInOut' is software components used to control IO and read IO status.
-2. 'EthReceiver' is used to receive incoming request from Ethernet.
-3. 'EthSender' is used to send out response to Ethernet.
+2. 'EthReceiver' is used to receive incoming signals from Ethernet.
+3. 'EthSender' is used to send signals to Ethernet.
 
 #### Software Components defined in BCM's ADP layer
-1. 'SOAFrame' is used to forward signals from BSW to ASW and from ASW to BSW.
+1. 'SOAFrame' is used to forward signals from BSW layer to ASW layer when there is incoming signal from outer ECU.
+2. 'SOAFrame' is also used to forward signals from ASW layer to BSW layer when there is outgoing signal to outer ECU.
+3. 'SOAFrame' can't forward signals from one software component to another software component when they are both in same layer.
 
 #### Software Components designed in BCM's ASW layer
 1. All software components deployed in BCM physical ECU are SOA service.
-2. All services will process incoming control request, handle it according to service-specific processing logic (such as send request to other ECU by IO etc), send out response at last.
-3. The specific services will be described in following section.
+2. All services will process incoming control request, handle it according to service-specific process logic(different for each specific service), send out response at last.
+3. The specific services and the processing logic will be described in following section.
 
 ##### RoofLight Service
 1. Car user can control RoofLight by touching HU screen.
 2. RoofLight Service is deployed in BCM's ASW layer as a SOA service.
+3. The process logic in RoofLight Service will be sending signal to RoofLight ECU by IO, after 100ms, read IO status and then send to HU following the software architecture.
